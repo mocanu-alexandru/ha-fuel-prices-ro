@@ -1,7 +1,7 @@
 # Fuel Prices Romania — Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![Validate](https://github.com/YOUR_USERNAME/ha-fuel-prices-ro/actions/workflows/validate.yml/badge.svg)](https://github.com/YOUR_USERNAME/ha-fuel-prices-ro/actions/workflows/validate.yml)
+[![Validate](https://github.com/mocanu-alexandru/ha-fuel-prices-ro/actions/workflows/validate.yml/badge.svg)](https://github.com/mocanu-alexandru/ha-fuel-prices-ro/actions/workflows/validate.yml)
 
 Pulls daily fuel prices for Romanian gas stations (per city + per brand) from the
 official source — Consiliul Concurenței's `monitorulpreturilor.info` — and exposes
@@ -22,7 +22,7 @@ them as Home Assistant sensors with native long-term statistics support.
 ### Via HACS (recommended)
 
 1. In HACS → **Integrations** → ⋮ → **Custom repositories**
-2. Add `https://github.com/YOUR_USERNAME/ha-fuel-prices-ro` as type **Integration**
+2. Add `https://github.com/mocanu-alexandru/ha-fuel-prices-ro` as type **Integration**
 3. Install **Fuel Prices Romania**
 4. Restart Home Assistant
 5. **Settings → Devices & Services → Add Integration → Fuel Prices Romania**
