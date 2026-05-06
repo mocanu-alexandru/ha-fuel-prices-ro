@@ -1,0 +1,37 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Alege orașul",
+        "description": "Selectează orașul (UAT) din România pentru care vrei să monitorizezi prețurile carburanților.",
+        "data": {
+          "uat_id": "Oraș"
+        }
+      },
+      "selection": {
+        "title": "Configurează {uat_name}",
+        "description": "Alege brand-urile de benzinării și tipurile de carburant pe care vrei să le urmărești.",
+        "data": {
+          "brands": "Brand-uri benzinării",
+          "fuels": "Tipuri de carburant",
+          "scan_interval_hours": "Interval de actualizare (ore)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Acest oraș este deja configurat. Fiecare oraș poate fi adăugat o singură dată."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ajustează selecțiile",
+        "data": {
+          "brands": "Brand-uri benzinării",
+          "fuels": "Tipuri de carburant",
+          "scan_interval_hours": "Interval de actualizare (ore)"
+        }
+      }
+    }
+  }
+}

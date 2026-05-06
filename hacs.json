@@ -1,0 +1,6 @@
+{
+  "name": "Fuel Prices Romania",
+  "render_readme": true,
+  "homeassistant": "2024.4.0",
+  "country": ["RO"]
+}

@@ -1,0 +1,37 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Choose a city",
+        "description": "Select the Romanian city (UAT) you want to monitor fuel prices in.",
+        "data": {
+          "uat_id": "City"
+        }
+      },
+      "selection": {
+        "title": "Configure {uat_name}",
+        "description": "Choose which gas station brands and fuel types to track.",
+        "data": {
+          "brands": "Gas station brands",
+          "fuels": "Fuel types",
+          "scan_interval_hours": "Refresh interval (hours)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This city is already configured. Each city must be added only once."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Adjust selections",
+        "data": {
+          "brands": "Gas station brands",
+          "fuels": "Fuel types",
+          "scan_interval_hours": "Refresh interval (hours)"
+        }
+      }
+    }
+  }
+}
