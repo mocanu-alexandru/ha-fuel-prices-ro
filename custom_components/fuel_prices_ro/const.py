@@ -1,7 +1,13 @@
 """Constants for the Romanian Fuel Prices integration."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 DOMAIN = "fuel_prices_ro"
+
+_manifest = json.loads((Path(__file__).parent / "manifest.json").read_text())
+_VERSION = _manifest["version"]
 ATTRIBUTION = "Data: Consiliul Concurenței (monitorulpreturilor.info)"
 
 # ---------------------------------------------------------------------------
@@ -17,7 +23,7 @@ URL_UAT_LIST = f"{PMONSVC_BASE}/GetUatByName"
 # ---------------------------------------------------------------------------
 DEFAULT_SCAN_INTERVAL_HOURS = 6
 HTTP_TIMEOUT_SECONDS = 15
-USER_AGENT = "ha-fuel-prices-ro/0.1.0 (Home Assistant)"
+USER_AGENT = f"ha-fuel-prices-ro/{_VERSION} (Home Assistant)"
 
 # ---------------------------------------------------------------------------
 # Configuration keys
@@ -39,6 +45,15 @@ FUEL_CATEGORIES: dict[str, str] = {
     "21": "Motorină standard",
     "22": "Motorină premium",
     "31": "GPL",
+}
+
+# MDI icons per fuel category
+FUEL_ICONS: dict[str, str] = {
+    "11": "mdi:gas-station",
+    "12": "mdi:gas-station-outline",
+    "21": "mdi:truck-fast",
+    "22": "mdi:truck-fast-outline",
+    "31": "mdi:gas-cylinder",
 }
 
 # Slug used in entity_ids — diacritics stripped, snake_case

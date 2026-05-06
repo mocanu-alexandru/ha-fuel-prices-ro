@@ -16,6 +16,7 @@ from .const import (
     DEFAULT_UATS,
     DOMAIN,
     FUEL_CATEGORIES,
+    FUEL_ICONS,
     FUEL_SLUGS,
 )
 from .coordinator import FuelPricesCoordinator
@@ -46,7 +47,6 @@ class FuelPriceSensor(
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "RON/L"
     _attr_suggested_display_precision = 2
-    _attr_icon = "mdi:gas-station"
     _attr_has_entity_name = True
 
     def __init__(
@@ -65,6 +65,8 @@ class FuelPriceSensor(
         brand_name = BRANDS.get(brand_id, brand_id.title())
         fuel_name = FUEL_CATEGORIES.get(fuel_id, f"Fuel {fuel_id}")
         fuel_slug = FUEL_SLUGS.get(fuel_id, fuel_id)
+
+        self._attr_icon = FUEL_ICONS.get(fuel_id, "mdi:gas-station")
 
         self._attr_unique_id = (
             f"{DOMAIN}_{uat_id}_{brand_id.lower()}_{fuel_slug}"

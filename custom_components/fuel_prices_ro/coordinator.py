@@ -123,7 +123,7 @@ def _aggregate_min_per_brand_fuel(
                     "price": round(i.price, 2),
                     "distance_km": i.distance_km,
                 }
-                for i in sorted(group, key=lambda x: x.price)
+                for i in sorted(group, key=lambda x: x.price)[:30]
             ],
         }
     return out
