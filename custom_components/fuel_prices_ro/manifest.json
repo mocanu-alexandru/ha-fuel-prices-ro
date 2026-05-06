@@ -1,13 +1,13 @@
 {
   "domain": "fuel_prices_ro",
   "name": "Fuel Prices Romania",
-  "version": "0.1.0",
-  "documentation": "https://github.com/mocanu-alexandru/ha-fuel-prices-ro",
-  "issue_tracker": "https://github.com/mocanu-alexandru/ha-fuel-prices-ro/issues",
   "codeowners": ["@mocanu-alexandru"],
   "config_flow": true,
-  "iot_class": "cloud_polling",
+  "documentation": "https://github.com/mocanu-alexandru/ha-fuel-prices-ro",
   "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/mocanu-alexandru/ha-fuel-prices-ro/issues",
+  "loggers": ["custom_components.fuel_prices_ro"],
   "requirements": [],
-  "loggers": ["custom_components.fuel_prices_ro"]
+  "version": "0.1.0"
 }
