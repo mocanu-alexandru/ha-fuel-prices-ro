@@ -64,6 +64,7 @@ class FuelPriceItem:
     product_name: str       # commercial variant, e.g. "BENZINA EVO 95"
     price: float            # RON/L
     distance_km: float | None
+    source: str = "primary"  # "primary" (Council) or "fallback" (peco-online)
 
 
 class FuelPricesApiError(Exception):

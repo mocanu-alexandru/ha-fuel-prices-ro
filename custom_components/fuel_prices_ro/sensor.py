@@ -102,6 +102,7 @@ class FuelPriceSensor(
             "uat_id": self.coordinator.uat_id,
             "min_station_id": info.get("min_station_id"),
             "min_product_name": info.get("min_product_name"),
+            "source": info.get("source"),
             "stations_count": info.get("stations_count"),
             "all_stations": info.get("all_stations"),
         }

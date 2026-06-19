@@ -117,6 +117,21 @@ minimum + station list as a single sensor.
 City list comes from `GET /pmonsvc/Gas/GetUatByName` (no params returns the top
 ~20 UATs). Brand catalog from `GET /pmonsvc/Gas/GetGasNetworks`.
 
+### Fallback source (since v0.1.3)
+
+If the primary Consiliul Concurenței source fails for a fuel category, the
+coordinator falls back **per-fuel** to [peco-online.ro](https://www.peco-online.ro)
+— an independent aggregator with its own crawl — by POSTing its public search
+form and parsing the returned station list. This keeps real, current prices
+flowing during a sustained primary-source outage (like the multi-week TLS-chain
+break in mid-2026) instead of letting sensors go `unavailable`.
+
+The `source` attribute on each sensor shows where the live value came from
+(`primary` = Council, `fallback` = peco-online.ro). The fallback covers only the
+bundled default cities + the 7 known brands, has no public API (so it scrapes
+and is best-effort), and may report a slightly different set of stations than
+the primary source.
+
 ## Limits & disclaimers
 
 - The pmonsvc API is **not officially documented**. The integration is built

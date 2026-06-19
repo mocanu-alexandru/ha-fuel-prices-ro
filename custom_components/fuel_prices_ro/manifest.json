@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/mocanu-alexandru/ha-fuel-prices-ro/issues",
   "loggers": ["custom_components.fuel_prices_ro"],
   "requirements": [],
-  "version": "0.1.2"
+  "version": "0.1.3"
 }

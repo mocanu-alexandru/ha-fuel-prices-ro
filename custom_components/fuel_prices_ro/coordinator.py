@@ -15,6 +15,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import FuelPriceItem, FuelPricesApiError, FuelPricesClient
+from .peco_api import PecoFallbackClient
 from .const import (
     CONF_BRANDS,
     CONF_FUELS,
@@ -32,6 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 #       "fuel_id":  str,        "fuel_name":  str,
 #       "min_price": float,     "min_station_id": str,
 #       "min_product_name": str,
+#       "source": str,          # "primary" (Council) or "fallback" (peco)
 #       "stations_count": int,
 #       "all_stations": [
 #           {"station_id": str, "product_name": str,
@@ -55,7 +57,9 @@ class FuelPricesCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
             merged.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_HOURS)
         )
 
-        self._client = FuelPricesClient(async_get_clientsession(hass))
+        session = async_get_clientsession(hass)
+        self._client = FuelPricesClient(session)
+        self._fallback = PecoFallbackClient(session)
 
         super().__init__(
             hass,
@@ -77,23 +81,57 @@ class FuelPricesCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         )
 
         all_items: list[FuelPriceItem] = []
-        any_success = False
+        failed_fuels: list[str] = []
         for fuel_id, result in zip(self.fuel_ids, results, strict=True):
             if isinstance(result, BaseException):
                 _LOGGER.warning(
-                    "Fetch failed for fuel %s in UAT %s: %s",
+                    "Primary fetch failed for fuel %s in UAT %s: %s",
                     fuel_id, self.uat_id, result,
                 )
+                failed_fuels.append(fuel_id)
                 continue
-            any_success = True
             all_items.extend(result)
 
-        if not any_success:
+        # For any fuel the primary source couldn't deliver, try the
+        # independent peco-online.ro fallback. It is best-effort (never
+        # raises) and tags its items source="fallback".
+        if failed_fuels:
+            await self._apply_fallback(failed_fuels, all_items)
+
+        if not all_items:
             raise UpdateFailed(
-                f"All API calls failed for UAT {self.uat_id}"
+                f"Primary and fallback both failed for UAT {self.uat_id}"
             )
 
         return _aggregate_min_per_brand_fuel(all_items)
+
+    async def _apply_fallback(
+        self, fuel_ids: list[str], all_items: list[FuelPriceItem]
+    ) -> None:
+        """Append peco-online.ro results for the given (failed) fuels."""
+        fb_results = await asyncio.gather(
+            *[
+                self._fallback.fetch_prices(
+                    self.uat_id, fuel_id, self.brand_ids
+                )
+                for fuel_id in fuel_ids
+            ],
+            return_exceptions=True,
+        )
+        for fuel_id, result in zip(fuel_ids, fb_results, strict=True):
+            if isinstance(result, BaseException):
+                _LOGGER.debug(
+                    "Fallback errored for fuel %s in UAT %s: %s",
+                    fuel_id, self.uat_id, result,
+                )
+                continue
+            if result:
+                _LOGGER.info(
+                    "Using peco-online.ro fallback for fuel %s in UAT %s "
+                    "(%d stations)",
+                    fuel_id, self.uat_id, len(result),
+                )
+                all_items.extend(result)
 
 
 def _aggregate_min_per_brand_fuel(
@@ -115,6 +153,7 @@ def _aggregate_min_per_brand_fuel(
             "min_price": round(cheapest.price, 2),
             "min_station_id": cheapest.station_id,
             "min_product_name": cheapest.product_name,
+            "source": cheapest.source,
             "stations_count": len(group),
             "all_stations": [
                 {

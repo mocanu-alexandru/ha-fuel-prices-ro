@@ -19,6 +19,34 @@ URL_GAS_NETWORKS = f"{PMONSVC_BASE}/GetGasNetworks"
 URL_UAT_LIST = f"{PMONSVC_BASE}/GetUatByName"
 
 # ---------------------------------------------------------------------------
+# Fallback source: peco-online.ro (independent crawl, used only if the primary
+# Council source fails). No public API — we POST the same form its website uses
+# and parse the server-rendered `rezultate` JSON. See peco_api.py.
+# ---------------------------------------------------------------------------
+URL_PECO_FALLBACK = "https://www.peco-online.ro/index_en.php"
+
+# Our fuel-category id -> peco `carburant` value (verified 1:1).
+PECO_FUEL_MAP: dict[str, str] = {
+    "11": "Benzina_Regular",
+    "12": "Benzina_Premium",
+    "21": "Motorina_Regular",
+    "22": "Motorina_Premium",
+    "31": "GPL",
+}
+
+# Our brand id -> peco `retea` value. peco returns the same names title-cased,
+# so the reverse map is simply `.upper()` (validated against BRANDS on parse).
+PECO_BRAND_MAP: dict[str, str] = {
+    "GAZPROM": "Gazprom",
+    "LUKOIL": "Lukoil",
+    "MOL": "Mol",
+    "OMV": "OMV",
+    "PETROM": "Petrom",
+    "ROMPETROL": "Rompetrol",
+    "SOCAR": "Socar",
+}
+
+# ---------------------------------------------------------------------------
 # Defaults
 # ---------------------------------------------------------------------------
 DEFAULT_SCAN_INTERVAL_HOURS = 6
