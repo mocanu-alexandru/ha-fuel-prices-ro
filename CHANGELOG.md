@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-06-19
+
+### Fixed
+- Sensors no longer go `unavailable` due to TLS verification failures
+  (`unable to get local issuer certificate` / `CERTIFICATE_VERIFY_FAILED`).
+  The upstream host `monitorulpreturilor.info` renewed its certificate but
+  now serves an incomplete chain — the issuing Sectigo "R36" intermediate is
+  missing. Browsers recover via AIA fetching, but Python/aiohttp do not. The
+  integration now bundles the missing intermediate (and its R46 root) and
+  completes the chain itself, **without disabling certificate verification**.
+  Becomes harmless once the upstream operator fixes their server config.
+
 ## [0.1.0] - 2026-05-06
 
 ### Added

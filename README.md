@@ -129,6 +129,15 @@ City list comes from `GET /pmonsvc/Gas/GetUatByName` (no params returns the top
   there can be lag of a day or two vs. the actual pump.
 - Data: © Consiliul Concurenței. This integration only redistributes
   publicly available figures; **respect their terms of use**.
+- **Upstream TLS chain workaround (since v0.1.2):** `monitorulpreturilor.info`
+  currently serves an incomplete certificate chain (the issuing Sectigo R36
+  intermediate is missing), which makes Python/aiohttp reject the connection
+  with `unable to get local issuer certificate`. Web browsers hide this by
+  fetching the missing intermediate via AIA; Python does not. The integration
+  ships the missing intermediate (`sectigo_r36_intermediate.pem`) and completes
+  the chain itself — certificate verification stays **fully enabled**. This is
+  a server-side misconfiguration on the upstream host; the workaround becomes
+  harmless once they fix it.
 
 ## License
 

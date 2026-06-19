@@ -1,9 +1,12 @@
 """Async client for monitorulpreturilor.info pmonsvc service."""
 from __future__ import annotations
 
+import asyncio
 import logging
+import ssl
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from pathlib import Path
 
 import aiohttp
 from yarl import URL
@@ -21,6 +24,31 @@ _LOGGER = logging.getLogger(__name__)
 # XML namespace used by the WCF data contract
 XMLNS = "http://schemas.datacontract.org/2004/07/pmonsvc.Models.Protos"
 NS = {"d": XMLNS}
+
+# ---------------------------------------------------------------------------
+# TLS workaround for a broken upstream certificate chain.
+#
+# monitorulpreturilor.info serves an INCOMPLETE chain: its leaf is issued by
+# "Sectigo Public Server Authentication CA DV R36" but the server presents a
+# non-matching intermediate, so the real issuing intermediate is missing.
+# Browsers recover by fetching it via the cert's AIA extension; Python/aiohttp
+# do not do AIA fetching and reject the connection (CERTIFICATE_VERIFY_FAILED,
+# "unable to get local issuer certificate"). We complete the chain ourselves by
+# trusting the bundled R36 intermediate + R46 root, WITHOUT disabling
+# verification. Harmless once the upstream operator fixes their server config.
+# ---------------------------------------------------------------------------
+_INTERMEDIATE_PEM = Path(__file__).parent / "sectigo_r36_intermediate.pem"
+
+
+def _build_ssl_context() -> ssl.SSLContext:
+    """Default-verifying context + the intermediate the server fails to send.
+
+    Blocking (reads CA files) — call via an executor, never on the event loop.
+    """
+    context = ssl.create_default_context()
+    if _INTERMEDIATE_PEM.is_file():
+        context.load_verify_locations(cafile=str(_INTERMEDIATE_PEM))
+    return context
 
 
 @dataclass(frozen=True)
@@ -48,6 +76,7 @@ class FuelPricesClient:
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self._session = session
         self._timeout = aiohttp.ClientTimeout(total=HTTP_TIMEOUT_SECONDS)
+        self._ssl: ssl.SSLContext | None = None
         self._headers = {
             "User-Agent": USER_AGENT,
             "Accept": "application/xml,*/*",
@@ -155,12 +184,20 @@ class FuelPricesClient:
     # -----------------------------------------------------------------
     # Internals
     # -----------------------------------------------------------------
+    async def _get_ssl(self) -> ssl.SSLContext:
+        if self._ssl is None:
+            loop = asyncio.get_running_loop()
+            self._ssl = await loop.run_in_executor(None, _build_ssl_context)
+        return self._ssl
+
     async def _get(self, url: URL) -> bytes:
+        ssl_context = await self._get_ssl()
         try:
             async with self._session.get(
                 str(url),
                 headers=self._headers,
                 timeout=self._timeout,
+                ssl=ssl_context,
             ) as resp:
                 resp.raise_for_status()
                 return await resp.read()
